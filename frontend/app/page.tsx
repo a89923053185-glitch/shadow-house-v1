@@ -449,6 +449,7 @@ export default function HomePage() {
     : "КЭТ • Тень дома";
   const mobileStepNumber = apiState ? Math.min(Math.max(apiState.progress.current || 1, 1), apiState.progress.total || 1) : 1;
   const mobileSubmitLabel = apiState && apiState.progress.current < apiState.progress.total ? "Далее" : "Отправить";
+  const startupErrorMessage = error || "Не удалось подключиться к диагностике. Проверьте API и попробуйте снова.";
 
   function handlePhoneBlur() {
     setContactPhone((current) => formatRussianPhone(current));
@@ -612,6 +613,27 @@ export default function HomePage() {
       <main className="page">
         <div className="shell">
           <div className="loadingCard">КЭТ готовит вход в диагностику «Тень дома»…</div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!apiState) {
+    return (
+      <main className={`page${isMobileFlow ? " mobilePage" : ""}`}>
+        <div className={isMobileFlow ? "mobileShell mobileShellIntro" : "shell"}>
+          <section className={isMobileFlow ? "mobileIntroCard startupCard" : "loadingCard startupCard"}>
+            <div className={isMobileFlow ? "mobileIntroEyebrow" : "moduleTag"}>КЭТ • Тень дома</div>
+            <h1>Диагностика временно не открылась</h1>
+            <p>
+              Фон загрузился, но основной сценарий не получил стартовую сессию от API. Обычно это происходит, когда
+              frontend смотрит на неверный адрес backend после деплоя.
+            </p>
+            <div className="errorBox startupError">{startupErrorMessage}</div>
+            <button type="button" className="submitButton startupRetryButton" onClick={() => void initSession()}>
+              Попробовать снова
+            </button>
+          </section>
         </div>
       </main>
     );

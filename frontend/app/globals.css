@@ -315,7 +315,7 @@ input {
   font-size: clamp(22px, 2.2vw, 26px);
   line-height: 1.16;
   font-weight: 700;
-  color: var(--accent);
+  color: #6f3f26;
 }
 
 .bubbleMainShadowTitle {
@@ -335,7 +335,7 @@ input {
 }
 
 .bubbleMainShadowName {
-  color: var(--accent);
+  color: #6f3f26;
   font-size: clamp(18px, 1.8vw, 20px);
   line-height: 1.35;
   font-weight: 700;
@@ -459,13 +459,13 @@ input {
 .bubbleOfferTitle {
   font-size: clamp(18px, 1.8vw, 21px);
   line-height: 1.15;
-  color: var(--accent);
+  color: #6f3f26;
   font-weight: 700;
 }
 
 .bubbleStepHint {
   margin: 0;
-  color: #d1a071;
+  color: #6f3f26;
   font-weight: 700;
   font-size: 14px;
   line-height: 1.45;
@@ -1185,6 +1185,35 @@ input {
   font-size: 18px;
 }
 
+.startupCard {
+  display: grid;
+  gap: 14px;
+  text-align: left;
+  color: #2b1a12;
+  grid-column: 1 / -1;
+}
+
+.startupCard h1 {
+  margin: 0;
+  font-size: clamp(26px, 4vw, 34px);
+  line-height: 1.12;
+  color: #2b1a12;
+}
+
+.startupCard p {
+  margin: 0;
+  color: rgba(43, 26, 18, 0.76);
+  line-height: 1.6;
+}
+
+.startupError {
+  color: #2b1a12;
+}
+
+.startupRetryButton {
+  justify-self: start;
+}
+
 .mobileIntroCard,
 .mobileProgressHeader,
 .mobileStepCard,
@@ -1363,7 +1392,7 @@ input {
   font-size: clamp(22px, 6vw, 26px);
   line-height: 1.15;
   font-weight: 700;
-  color: var(--accent);
+  color: #6f3f26;
 }
 
 .mobileMainShadowTitle {
@@ -1378,7 +1407,7 @@ input {
 }
 
 .mobileMainShadowTitle span {
-  color: var(--accent);
+  color: #6f3f26;
   font-size: clamp(18px, 5vw, 20px);
   line-height: 1.35;
   font-weight: 700;
@@ -1413,7 +1442,7 @@ input {
 }
 
 .mobileStepHint {
-  color: #d1a071;
+  color: #6f3f26;
   font-weight: 700;
   font-size: 15px;
   line-height: 1.5;
@@ -1439,7 +1468,7 @@ input {
   font-size: clamp(19px, 5vw, 22px);
   line-height: 1.15;
   font-weight: 700;
-  color: var(--accent);
+  color: #6f3f26;
 }
 
 .mobileBulletList {
