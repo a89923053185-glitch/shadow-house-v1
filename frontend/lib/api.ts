@@ -9,7 +9,7 @@ import {
   SessionState,
 } from "@/lib/types";
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1").replace(/\/$/, "");
+const API_BASE_URL = "/api/v1";
 const SESSION_INIT_TIMEOUT_MS = 12000;
 const SESSION_INIT_RETRIES = 1;
 
@@ -44,7 +44,6 @@ export async function createSession(): Promise<ApiResponse> {
 
   for (let attempt = 0; attempt <= SESSION_INIT_RETRIES; attempt += 1) {
     try {
-      console.log("[createSession] before fetch", { attempt, url: `${API_BASE_URL}/sessions` });
       const response = await fetchWithTimeout(
         `${API_BASE_URL}/sessions`,
         {
@@ -54,16 +53,8 @@ export async function createSession(): Promise<ApiResponse> {
         },
         SESSION_INIT_TIMEOUT_MS
       );
-      console.log("[createSession] after fetch", { attempt, ok: response.ok, status: response.status });
-      const parsed = await parseJson<ApiResponse>(response);
-      console.log("[createSession] after response.json", {
-        attempt,
-        hasSessionId: Boolean(parsed?.session_id),
-        inputMode: parsed?.input_mode,
-      });
-      return parsed;
+      return parseJson<ApiResponse>(response);
     } catch (error) {
-      console.error("[createSession] request failed", { attempt, error });
       lastError = error;
     }
   }

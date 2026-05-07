@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 
 function backendBaseUrl() {
-  const target = process.env.API_PROXY_TARGET || process.env.BACKEND_PUBLIC_URL || "http://backend:8000";
+  const target = process.env.BACKEND_URL || "https://shadow-house-v1-production.up.railway.app";
   return target.replace(/\/$/, "").replace(/\/api\/v1$/, "");
 }
 
