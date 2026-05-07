@@ -373,7 +373,7 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    void initSession();
+    console.log("USE EFFECT WORKS");
   }, []);
 
   useEffect(() => {
