@@ -347,19 +347,14 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [isMobileFlow, setIsMobileFlow] = useState(false);
   const [mobileFlowStarted, setMobileFlowStarted] = useState(false);
-  const [initStarted, setInitStarted] = useState(false);
-  const [initFinished, setInitFinished] = useState(false);
-  const [sessionResolved, setSessionResolved] = useState(false);
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
+  const initRequestedRef = useRef(false);
 
   async function initSession() {
     try {
-      setInitStarted(true);
-      setInitFinished(false);
       setLoading(true);
       setError(null);
       const session = await createSession();
-      setSessionResolved(true);
       setSessionId(session.session_id);
       setApiState(session);
       setMessages(assistantMessagesFromResponse(session));
@@ -373,23 +368,26 @@ export default function HomePage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось создать сессию");
     } finally {
-      setInitFinished(true);
       setLoading(false);
     }
   }
 
-  useEffect(() => {
+  function triggerInitSession() {
+    if (initRequestedRef.current) return;
+    initRequestedRef.current = true;
     void initSession();
-  }, []);
+  }
+
+  if (typeof window !== "undefined" && !initRequestedRef.current) {
+    initRequestedRef.current = true;
+    queueMicrotask(() => {
+      void initSession();
+    });
+  }
 
   useEffect(() => {
-    if (!loading) return;
-    const timeoutId = window.setTimeout(() => {
-      setLoading(false);
-      setError((current) => current || "Загрузка сессии заняла слишком много времени. Нажмите «Попробовать снова». ");
-    }, 15000);
-    return () => window.clearTimeout(timeoutId);
-  }, [loading]);
+    triggerInitSession();
+  }, []);
 
   useEffect(() => {
     const body = chatBodyRef.current;
@@ -629,15 +627,6 @@ export default function HomePage() {
       <main className="page">
         <div className="shell">
           <div className="loadingCard">КЭТ готовит вход в диагностику «Тень дома»…</div>
-          <pre className="errorBox" style={{ marginTop: 12, whiteSpace: "pre-wrap" }}>
-            {`debug: loading=${String(loading)}
-apiState=${apiState ? "yes" : "no"}
-error=${error || "none"}
-sessionId=${sessionId || "none"}
-initStarted=${String(initStarted)}
-initFinished=${String(initFinished)}
-sessionResolved=${String(sessionResolved)}`}
-          </pre>
         </div>
       </main>
     );
