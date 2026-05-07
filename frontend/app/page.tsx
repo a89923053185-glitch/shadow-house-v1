@@ -352,6 +352,7 @@ export default function HomePage() {
   async function initSession() {
     try {
       setLoading(true);
+      console.log("INIT SESSION START");
       setError(null);
       const session = await createSession();
       setSessionId(session.session_id);
