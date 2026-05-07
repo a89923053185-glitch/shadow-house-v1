@@ -44,6 +44,7 @@ export async function createSession(): Promise<ApiResponse> {
 
   for (let attempt = 0; attempt <= SESSION_INIT_RETRIES; attempt += 1) {
     try {
+      console.log("[createSession] before fetch", { attempt, url: `${API_BASE_URL}/sessions` });
       const response = await fetchWithTimeout(
         `${API_BASE_URL}/sessions`,
         {
@@ -53,8 +54,16 @@ export async function createSession(): Promise<ApiResponse> {
         },
         SESSION_INIT_TIMEOUT_MS
       );
-      return parseJson<ApiResponse>(response);
+      console.log("[createSession] after fetch", { attempt, ok: response.ok, status: response.status });
+      const parsed = await parseJson<ApiResponse>(response);
+      console.log("[createSession] after response.json", {
+        attempt,
+        hasSessionId: Boolean(parsed?.session_id),
+        inputMode: parsed?.input_mode,
+      });
+      return parsed;
     } catch (error) {
+      console.error("[createSession] request failed", { attempt, error });
       lastError = error;
     }
   }

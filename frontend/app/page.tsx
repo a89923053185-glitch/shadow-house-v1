@@ -352,11 +352,27 @@ export default function HomePage() {
 
   async function initSession() {
     try {
+      console.log("[initSession] before fetch", {
+        loadingBefore: loading,
+        hasApiStateBefore: Boolean(apiState),
+        sessionIdBefore: sessionId,
+      });
       setLoading(true);
       setError(null);
       const session = await createSession();
+      console.log("[initSession] after fetch/parse", {
+        hasSession: Boolean(session),
+        sessionId: session?.session_id,
+        inputMode: session?.input_mode,
+        choicesCount: session?.choices?.length ?? 0,
+      });
       setSessionId(session.session_id);
+      console.log("[initSession] before setApiState", { sessionId: session.session_id });
       setApiState(session);
+      console.log("[initSession] after setApiState", {
+        sessionId: session.session_id,
+        inputMode: session.input_mode,
+      });
       setMessages(assistantMessagesFromResponse(session));
       setInputText("");
       setContactName("");
@@ -366,8 +382,14 @@ export default function HomePage() {
       setDevCode(null);
       setResultAccessToken(null);
     } catch (err) {
+      console.error("[initSession] failed", err);
       setError(err instanceof Error ? err.message : "Не удалось создать сессию");
     } finally {
+      console.log("[initSession] finally", {
+        hasApiState: Boolean(apiState),
+        sessionId,
+        loadingWillBeFalse: true,
+      });
       setLoading(false);
     }
   }
@@ -432,6 +454,16 @@ export default function HomePage() {
     }
   }, [apiState, messages]);
 
+  useEffect(() => {
+    console.log("[state] transition", {
+      loading,
+      hasApiState: Boolean(apiState),
+      sessionId,
+      error,
+      inputMode: apiState?.input_mode ?? null,
+    });
+  }, [loading, apiState, sessionId, error]);
+
   const canSendText = useMemo(() => apiState?.input_mode === "text" && !sending, [apiState?.input_mode, sending]);
   const canSendChoices = useMemo(() => apiState?.input_mode === "choices" && !sending, [apiState?.input_mode, sending]);
   const canSendDepthText = useMemo(
@@ -464,6 +496,7 @@ export default function HomePage() {
   const mobileStepNumber = apiState ? Math.min(Math.max(apiState.progress.current || 1, 1), apiState.progress.total || 1) : 1;
   const mobileSubmitLabel = apiState && apiState.progress.current < apiState.progress.total ? "Далее" : "Отправить";
   const startupErrorMessage = error || "Не удалось подключиться к диагностике. Проверьте API и попробуйте снова.";
+  const showStartupState = !apiState && !loading;
 
   function handlePhoneBlur() {
     setContactPhone((current) => formatRussianPhone(current));
@@ -632,7 +665,7 @@ export default function HomePage() {
     );
   }
 
-  if (!apiState) {
+  if (showStartupState) {
     return (
       <main className={`page${isMobileFlow ? " mobilePage" : ""}`}>
         <div className={isMobileFlow ? "mobileShell mobileShellIntro" : "shell"}>
