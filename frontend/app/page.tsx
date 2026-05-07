@@ -352,7 +352,6 @@ export default function HomePage() {
   async function initSession() {
     try {
       setLoading(true);
-      console.log("INIT SESSION START");
       setError(null);
       const session = await createSession();
       setSessionId(session.session_id);
@@ -373,7 +372,7 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    console.log("USE EFFECT WORKS");
+    void initSession();
   }, []);
 
   useEffect(() => {
