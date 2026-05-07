@@ -12,4 +12,4 @@ COPY app /app/app
 COPY tests /app/tests
 COPY pytest.ini /app/pytest.ini
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/bin/sh", "-c", "uvicorn app.main:app --host ${BACKEND_HOST:-0.0.0.0} --port ${PORT:-${BACKEND_PORT:-8000}}"]
