@@ -10,6 +10,8 @@ import {
 } from "@/lib/types";
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1").replace(/\/$/, "");
+const SESSION_INIT_TIMEOUT_MS = 12000;
+const SESSION_INIT_RETRIES = 1;
 
 async function parseJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -19,13 +21,45 @@ async function parseJson<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("Превышено время ожидания ответа API");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export async function createSession(): Promise<ApiResponse> {
-  const response = await fetch(`${API_BASE_URL}/sessions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    cache: "no-store"
-  });
-  return parseJson<ApiResponse>(response);
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= SESSION_INIT_RETRIES; attempt += 1) {
+    try {
+      const response = await fetchWithTimeout(
+        `${API_BASE_URL}/sessions`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store",
+        },
+        SESSION_INIT_TIMEOUT_MS
+      );
+      return parseJson<ApiResponse>(response);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("Не удалось создать сессию");
 }
 
 export async function resetSession(sessionId: string): Promise<ApiResponse> {
